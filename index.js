@@ -2,6 +2,7 @@ var express = require('express');
 var https = require('node:https');
 var mysql = require('mysql');
 
+// RDS Connection Credentials
 var db = mysql.createConnection({
     host: "database-1.cleovrzmw7r9.us-east-2.rds.amazonaws.com",
     port: "3306",
@@ -10,6 +11,7 @@ var db = mysql.createConnection({
     database: "nutrisyncdb",
 });
 
+// Establishing Connection w/ RDS
 db.connect((err) => {
     if (err) {
         console.log("Error establishing connecting with RDS Instance");
@@ -18,6 +20,7 @@ db.connect((err) => {
     console.log("Successful connection with RDS isntance");
 });
 
+// Initialize Express App
 var app = express();
 
 // Login Authenticaion
@@ -92,14 +95,14 @@ app.get('/lookup', async function (req, res) {
     }
 })
 
-// Helper function for HTTPS REQUEST to FDC API
+// Helper function for HTTPS REQUEST to OpenFoodFacts API
 async function barcodeReq(barcode) {
     return new Promise((resolve, reject) => {
         let data = '';
 
         const options = {
-            host: 'api.nal.usda.gov',
-            path: '/fdc/v1/food/' + barcode + '?api_key=SNg6e0kI9K0QyFsvlajEAohNqfdWyqE1eGQ6RbWi',
+            host: 'world.openfoodfacts.org',
+            path: '/api/v0/product/' + barcode + '.json',
             method: 'GET'
         };
 
