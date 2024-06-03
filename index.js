@@ -25,28 +25,83 @@ var app = express();
 
 // Login Authenticaion
 app.get('/login', function (req, res) {
-    res.send('hello world')
     const username = req.query.username;
     const password = req.query.password;
-})
+
+    const sql = 'SELECT user_id FROM user_list WHERE user_name = ? AND user_pword = ?';
+    db.query(sql, [username, password], (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            mySqlClient.end();
+            res.status(500).send("SQL QUERY FAILED");
+            res.end();
+        }
+
+        if (results.length > 0) {
+            res.send("SUCCESSFUL LOGIN");
+        } else {
+            res.status(500).send("USER NOT FOUND");
+        }
+
+        db.end();
+    });
+});
 
 // Signup Authentication
 app.get('/signup', function (req, res) {
-    res.send('hello world')
+    const email = req.query.email;
+    const password = req.query.password;
+    const username = req.query.username;
+
+    const sql = 'SELECT user_id FROM user_list WHERE user_email = ?';
+    db.query(sql, [email], (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            res.status(500).send("ERROR 500: INTERNAL SERVER ERROR; SQL QUERY FAILED");
+            db.end();
+            res.end();
+        }
+
+        if (results.length > 0) {
+            res.send("EMAIL ALREADY IN USE");
+        }
+
+        db.end();
+        res.end();
+    });
+
+    sql = 'INSERT INTO user_list (user_name, user_calorie_goal, user_pwrd, user_email) VALUES ?';
+    values = [username, 2000, password, email];
+
+    db.query(sql, values, (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            res.status(500).send("SQL QUERY FAILED");
+            db.end();
+            res.end();
+        }
+
+        db.end();
+    });
 })
 
 // Setting User Goals Data
-app.get('/setgoals', function (req, res) {
+app.get('/setgoal', function (req, res) {
     res.send('hello world')
 })
 
 // Retrieve User Goals Data
-app.get('/getgoals', function (req, res) {
+app.get('/getgoal', function (req, res) {
     res.send('hello world')
 })
 
 // Update Daily Log
-app.get('/dailylog', function (req, res) {
+app.get('/updatelog', function (req, res) {
+    res.send('hello world')
+})
+
+// Retrieve Daily Log s
+app.get('/getlog', function (req, res) {
     res.send('hello world')
 })
 
