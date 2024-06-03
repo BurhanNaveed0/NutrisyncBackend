@@ -85,14 +85,41 @@ app.get('/signup', function (req, res) {
     });
 })
 
-// Setting User Goals Data
+// Setting User Goals Data 
 app.get('/setgoal', function (req, res) {
-    res.send('hello world')
+    const goal = req.query.goal;
+    const user = req.query.username;
+
+    const sql = 'UPDATE user_list SET user_calorie_goal = ? WHERE user_name = ?';
+    db.query(sql, [goal, user], (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            mySqlClient.end();
+            res.status(500).send("SQL ERROR: COULD NOT UPDATE USER CALORIE GOAL");
+            res.end();
+        }
+
+        res.send("SUCCESSFUL UPDATE OF USER CALORIE GOAL");
+        db.end();
+    });
 })
 
 // Retrieve User Goals Data
 app.get('/getgoal', function (req, res) {
-    res.send('hello world')
+    const user = req.query.username;
+    const sql = 'SELECT user_calorie_goal FROM user_list WHERE user_name = ?';
+
+    db.query(sql, [goal, user], (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            mySqlClient.end();
+            res.status(500).send("SQL ERROR: COULD NOT QUERY USER CALORIE GOAL DATA");
+            res.end();
+        }
+
+        res.send(results);
+        db.end();
+    });
 })
 
 // Update Daily Log
