@@ -89,8 +89,6 @@ app.post('/setgoal', function (req, res) {
     let goal = req.query.goal;
     let user = req.query.username;
 
-    // Check If User Exists First 
-
     const sql = 'UPDATE user_list SET user_calorie_goal = ? WHERE user_name = ?';
     db.query(sql, [goal, user], (error, results, fields) => {
         if (error) {
@@ -135,18 +133,16 @@ app.post('/updatelog', function (req, res) {
     let fat = req.query.fat;
 
     const sql = 'INSERT INTO daily_log (user_name, date, food_item, food_cals, food_protein, food_carbs, food_fat) VALUES ?';
-    values = [username, date, fooditem, calories, protein, carbs, fat];
+    values = [[username, date, fooditem, calories, protein, carbs, fat]];
 
-    db.query(sql, [user], (error, results, fields) => {
+    db.query(sql, [values], (error, results, fields) => {
         if (error) {
             console.log(error);
-            mySqlClient.end();
             res.status(500).send("SQL ERROR: COULD NOT UPDATE USER CALORIE LOG");
-            res.end();
+            return;
         }
 
-        res.send(results);
-        db.end();
+        res.send("SUCESSFUL UPDATE OF USER LOG");
     });
 })
 
@@ -158,13 +154,11 @@ app.get('/getlog', function (req, res) {
     db.query(sql, [username], (error, results, fields) => {
         if (error) {
             console.log(error);
-            mySqlClient.end();
             res.status(500).send("SQL ERROR: COULD NOT QUERY USER CALORIE LOG");
             res.end();
         }
 
         res.send(results);
-        db.end();
     });
 })
 
