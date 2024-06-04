@@ -109,7 +109,7 @@ app.get('/getgoal', function (req, res) {
     const user = req.query.username;
     const sql = 'SELECT user_calorie_goal FROM user_list WHERE user_name = ?';
 
-    db.query(sql, [goal, user], (error, results, fields) => {
+    db.query(sql, [user], (error, results, fields) => {
         if (error) {
             console.log(error);
             mySqlClient.end();
@@ -124,12 +124,46 @@ app.get('/getgoal', function (req, res) {
 
 // Update Daily Log
 app.get('/updatelog', function (req, res) {
-    res.send('hello world')
+    const username = req.query.username;
+    const date = req.query.date;
+    const fooditem = req.query.fooditem;
+    const calories = req.query.calories;
+    const protein = req.query.protein;
+    const carbs = req.query.carbs;
+    const fat = req.query.fat;
+
+    const sql = 'INSERT INTO daily_log (user_name, user_calorie_goal, user_pwrd, user_email) VALUES ?';
+    values = [];
+
+    db.query(sql, [user], (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            mySqlClient.end();
+            res.status(500).send("SQL ERROR: COULD NOT QUERY USER CALORIE GOAL DATA");
+            res.end();
+        }
+
+        res.send(results);
+        db.end();
+    });
 })
 
 // Retrieve Daily Log s
 app.get('/getlog', function (req, res) {
-    res.send('hello world')
+    const username = req.query.username;
+    const sql = 'SELECT * FROM daily_log WHERE user_name = ?';
+
+    db.query(sql, [username], (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            mySqlClient.end();
+            res.status(500).send("SQL ERROR: COULD NOT QUERY USER CALORIE LOG");
+            res.end();
+        }
+
+        res.send(results);
+        db.end();
+    });
 })
 
 // Helper function for HTTPS REQUEST to FDC API
