@@ -24,15 +24,15 @@ db.connect((err) => {
 var app = express();
 
 // Login Authenticaion
-app.get('/login', function (req, res) {
-    const username = req.query.username;
-    const password = req.query.password;
+app.post('/login', async function (req, res) {
+    let username = req.query.username;
+    let password = req.query.password;
 
-    const sql = 'SELECT user_id FROM user_list WHERE user_name = ? AND user_pword = ?';
-    db.query(sql, [username, password], (error, results, fields) => {
+    const sql = 'SELECT user_name FROM user_list WHERE user_name = \'' + username + '\' AND user_pwrd = \'' + password + "\'";
+
+    await db.query(sql, async function (error, results, fields) {
         if (error) {
             console.log(error);
-            mySqlClient.end();
             res.status(500).send("SQL QUERY FAILED");
             res.end();
         }
@@ -42,38 +42,37 @@ app.get('/login', function (req, res) {
         } else {
             res.status(500).send("USER NOT FOUND");
         }
-
-        db.end();
     });
 });
 
 // Signup Authentication
-app.get('/signup', function (req, res) {
-    const email = req.query.email;
-    const password = req.query.password;
-    const username = req.query.username;
+app.post('/signup', async function (req, res) {
+    let email = req.query.email;
+    let password = req.query.password;
+    let username = req.query.username;
 
-    const sql = 'SELECT user_id FROM user_list WHERE user_email = ?';
-    db.query(sql, [email], (error, results, fields) => {
+    let sql = 'SELECT user_name FROM user_list WHERE user_email = ?';
+    await db.query(sql, [email], async function (error, results, fields) {
         if (error) {
             console.log(error);
             res.status(500).send("ERROR 500: INTERNAL SERVER ERROR; SQL QUERY FAILED");
             db.end();
-            res.end();
+            return;
         }
 
         if (results.length > 0) {
-            res.send("EMAIL ALREADY IN USE");
+            res.status(500).send("EMAIL ALREADY IN USE");
+            db.end();
+            return;
         }
 
         db.end();
-        res.end();
     });
 
     sql = 'INSERT INTO user_list (user_name, user_calorie_goal, user_pwrd, user_email) VALUES ?';
-    values = [username, 2000, password, email];
+    values = [[username, 2000, password, email]];
 
-    db.query(sql, values, (error, results, fields) => {
+    await db.query(sql, [values], async function (error, results, fields) {
         if (error) {
             console.log(error);
             res.status(500).send("SQL QUERY FAILED");
@@ -86,60 +85,63 @@ app.get('/signup', function (req, res) {
 })
 
 // Setting User Goals Data 
-app.get('/setgoal', function (req, res) {
-    const goal = req.query.goal;
-    const user = req.query.username;
+app.post('/setgoal', function (req, res) {
+    let goal = req.query.goal;
+    let user = req.query.username;
+
+    // Check If User Exists First 
 
     const sql = 'UPDATE user_list SET user_calorie_goal = ? WHERE user_name = ?';
     db.query(sql, [goal, user], (error, results, fields) => {
         if (error) {
             console.log(error);
-            mySqlClient.end();
             res.status(500).send("SQL ERROR: COULD NOT UPDATE USER CALORIE GOAL");
-            res.end();
+            return;
         }
 
         res.send("SUCCESSFUL UPDATE OF USER CALORIE GOAL");
-        db.end();
     });
 })
 
 // Retrieve User Goals Data
 app.get('/getgoal', function (req, res) {
-    const user = req.query.username;
-    const sql = 'SELECT user_calorie_goal FROM user_list WHERE user_name = ?';
+    let user = req.query.username;
+    let sql = 'SELECT user_calorie_goal FROM user_list WHERE user_name = ?';
 
     db.query(sql, [user], (error, results, fields) => {
         if (error) {
             console.log(error);
-            mySqlClient.end();
             res.status(500).send("SQL ERROR: COULD NOT QUERY USER CALORIE GOAL DATA");
-            res.end();
+            return;
+        }
+
+        if (results.length < 1) {
+            res.status(500).send("USER NOT FOUND");
+            return;
         }
 
         res.send(results);
-        db.end();
     });
 })
 
 // Update Daily Log
-app.get('/updatelog', function (req, res) {
-    const username = req.query.username;
-    const date = req.query.date;
-    const fooditem = req.query.fooditem;
-    const calories = req.query.calories;
-    const protein = req.query.protein;
-    const carbs = req.query.carbs;
-    const fat = req.query.fat;
+app.post('/updatelog', function (req, res) {
+    let username = req.query.username;
+    let date = req.query.date;
+    let fooditem = req.query.fooditem;
+    let calories = req.query.calories;
+    let protein = req.query.protein;
+    let carbs = req.query.carbs;
+    let fat = req.query.fat;
 
-    const sql = 'INSERT INTO daily_log (user_name, user_calorie_goal, user_pwrd, user_email) VALUES ?';
-    values = [];
+    const sql = 'INSERT INTO daily_log (user_name, date, food_item, food_cals, food_protein, food_carbs, food_fat) VALUES ?';
+    values = [username, date, fooditem, calories, protein, carbs, fat];
 
     db.query(sql, [user], (error, results, fields) => {
         if (error) {
             console.log(error);
             mySqlClient.end();
-            res.status(500).send("SQL ERROR: COULD NOT QUERY USER CALORIE GOAL DATA");
+            res.status(500).send("SQL ERROR: COULD NOT UPDATE USER CALORIE LOG");
             res.end();
         }
 
@@ -150,7 +152,7 @@ app.get('/updatelog', function (req, res) {
 
 // Retrieve Daily Log s
 app.get('/getlog', function (req, res) {
-    const username = req.query.username;
+    let username = req.query.username;
     const sql = 'SELECT * FROM daily_log WHERE user_name = ?';
 
     db.query(sql, [username], (error, results, fields) => {
