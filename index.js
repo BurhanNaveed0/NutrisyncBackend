@@ -45,42 +45,39 @@ app.post('/login', async function (req, res) {
     });
 });
 
+
+
+
 // Signup Authentication
-app.post('/signup', async function (req, res) {
+app.post('/signup', function (req, res) {
     let email = req.query.email;
     let password = req.query.password;
     let username = req.query.username;
 
     let sql = 'SELECT user_name FROM user_list WHERE user_email = ?';
-    await db.query(sql, [email], async function (error, results, fields) {
+    db.query(sql, [email], function (error, results, fields) {
         if (error) {
             console.log(error);
             res.status(500).send("ERROR 500: INTERNAL SERVER ERROR; SQL QUERY FAILED");
-            db.end();
             return;
         }
 
         if (results.length > 0) {
             res.status(500).send("EMAIL ALREADY IN USE");
-            db.end();
             return;
+        } else {
+            sql = 'INSERT INTO user_list (user_name, user_calorie_goal, user_pwrd, user_email) VALUES ?';
+            values = [[username, 2000, password, email]];
+
+            db.query(sql, [values], function (error, results, fields) {
+                if (error) {
+                    console.log(error);
+                    res.status(500).send('SQL ERROR: FAILED TO ADD USER TO TABLE');
+                }
+
+                res.send("SUCCESSFUL SIGN UP OF USER");
+            });
         }
-
-        db.end();
-    });
-
-    sql = 'INSERT INTO user_list (user_name, user_calorie_goal, user_pwrd, user_email) VALUES ?';
-    values = [[username, 2000, password, email]];
-
-    await db.query(sql, [values], async function (error, results, fields) {
-        if (error) {
-            console.log(error);
-            res.status(500).send("SQL QUERY FAILED");
-            db.end();
-            res.end();
-        }
-
-        db.end();
     });
 })
 
