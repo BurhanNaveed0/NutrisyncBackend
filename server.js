@@ -22,6 +22,7 @@ db.connect((err) => {
 
 // Initialize Express App
 var app = express();
+app.set('port', (process.env.PORT || 3000));
 
 // Login Authenticaion
 app.post('/login', async function (req, res) {
@@ -248,4 +249,6 @@ app.get('/barcode', async function (req, res) {
     }
 })
 
-app.listen(3000)
+app.listen(app.get('port'), function () {
+    console.log('Server has started! http://localhost:' + app.get('port') + '/');
+});
