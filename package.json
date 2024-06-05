@@ -2,7 +2,7 @@
   "name": "nutrisyncbackend",
   "version": "1.0.0",
   "description": "Backend server that will handle all data transactions from the Nutrisync App including user auth, food data, direct data fetching from the USDA API, and storing user data. ",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
