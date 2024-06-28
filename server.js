@@ -1,14 +1,18 @@
 var express = require('express');
 var https = require('node:https');
 var mysql = require('mysql');
+var dotenv = require('dotenv');
+
+// Configure .env file
+dotenv.config();
 
 // RDS Connection Credentials
 var db = mysql.createConnection({
-    host: "database-1.cleovrzmw7r9.us-east-2.rds.amazonaws.com",
-    port: "3306",
-    user: "admin",
-    password: "burhanis2good",
-    database: "nutrisyncdb",
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PWRD,
+    database: process.env.DB_NAME,
 });
 
 // Establishing Connection w/ RDS
