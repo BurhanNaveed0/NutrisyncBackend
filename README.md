@@ -6,7 +6,7 @@ This repository is dedicated to the backend of the product, responsible for hand
 
 Developers: Burhan Naveed, Jonas Tirona
 
-<a href="https://github.com/jonastirona/NutrisyncFrontend/">Link to Front-End</a>
+<a href="https://github.com/jonastirona/NutrisyncFrontend/">Front-End</a>
 
 ## Technologies Used 👨‍💻
 <details>
